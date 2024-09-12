@@ -1,0 +1,38 @@
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+
+-- Cria a janela principal do Fluent
+local Window = Fluent:CreateWindow({
+    Title = "Ark Hub " .. Fluent.Version,
+    SubTitle = "by .ysk0",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+-- Criação das abas principais
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
+
+-- Configura o SaveManager
+SaveManager:SetLibrary(Fluent)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetFolder("FluentScriptHub/specific-game")
+
+-- Remove a seção de Interface e mantém apenas a de configuração
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+Window:SelectTab(2)
+
+Fluent:Notify({
+    Title = "Fluent",
+    Content = "The script has been loaded.",
+    Duration = 8
+})
+
+-- Carrega a configuração de autoload, se disponível
+SaveManager:LoadAutoloadConfig()
