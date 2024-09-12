@@ -1,0 +1,112 @@
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+-- Cria a janela principal do Fluent
+local Window = Fluent:CreateWindow({
+    Title = "Ark Hub " .. Fluent.Version,
+    SubTitle = "by .ysk0",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+-- Criação das abas principais
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
+
+local Options = Fluent.Options
+
+-- Adiciona componentes básicos à aba principal
+do
+    Fluent:Notify({
+        Title = "Notification",
+        Content = "This is a notification",
+        Duration = 5
+    })
+
+    Tabs.Main:AddParagraph({
+        Title = "Paragraph",
+        Content = "This is a paragraph.\nSecond line!"
+    })
+
+    Tabs.Main:AddButton({
+        Title = "Button",
+        Description = "Very important button",
+        Callback = function()
+            Window:Dialog({
+                Title = "Title",
+                Content = "This is a dialog",
+                Buttons = {
+                    {
+                        Title = "Confirm",
+                        Callback = function()
+                            print("Confirmed the dialog.")
+                        end
+                    },
+                    {
+                        Title = "Cancel",
+                        Callback = function()
+                            print("Cancelled the dialog.")
+                        end
+                    }
+                }
+            })
+        end
+    })
+
+    -- Adiciona um toggle
+    local Toggle = Tabs.Main:AddToggle("MyToggle", {Title = "Toggle", Default = false })
+    Toggle:OnChanged(function()
+        print("Toggle changed:", Options.MyToggle.Value)
+    end)
+
+    -- Adiciona um slider
+    local Slider = Tabs.Main:AddSlider("Slider", {
+        Title = "Slider",
+        Default = 2,
+        Min = 0,
+        Max = 5,
+        Rounding = 1,
+    })
+    Slider:OnChanged(function(Value)
+        print("Slider changed:", Value)
+    end)
+
+    -- Adiciona um dropdown
+    local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
+        Title = "Dropdown",
+        Values = {"one", "two", "three", "four", "five"},
+        Multi = false,
+        Default = 1,
+    })
+    Dropdown:OnChanged(function(Value)
+        print("Dropdown changed:", Value)
+    end)
+end
+
+-- Configura o SaveManager e InterfaceManager
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetFolder("FluentScriptHub/specific-game")
+InterfaceManager:SetFolder("FluentScriptHub")
+
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+Window:SelectTab(1)
+
+Fluent:Notify({
+    Title = "Fluent",
+    Content = "The script has been loaded.",
+    Duration = 8
+})
+
+-- Carrega a configuração de autoload, se disponível
+SaveManager:LoadAutoloadConfig()
