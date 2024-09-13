@@ -1,0 +1,120 @@
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+
+-- Cria a janela principal do Fluent
+local Window = Fluent:CreateWindow({
+    Title = "Fluent " .. Fluent.Version,
+    SubTitle = "by dawid",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+-- Criação das abas principais
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    MacroSettings = Window:AddTab({ Title = "Macro Settings", Icon = "settings" }), -- Aba "Macro Settings" sem conteúdo
+    Misc = Window:AddTab({ Title = "Misc", Icon = "tools" }) -- Nova aba "Misc"
+}
+
+-- Certifique-se de que a aba "Misc" foi criada corretamente
+if Tabs.Misc then
+    -- Variável para armazenar o webhook e o ID do Discord
+    local webhookURL = ""
+    local discordID = ""
+
+    -- Adiciona um campo de texto para o webhook na aba Misc
+    Tabs.Misc:AddTextbox({
+        Title = "Webhook URL",
+        Placeholder = "Insira o Webhook do Discord",
+        Callback = function(value)
+            webhookURL = value
+            Fluent:Notify({
+                Title = "Webhook",
+                Content = "Webhook URL configurado com sucesso.",
+                Duration = 5
+            })
+        end
+    })
+
+    -- Adiciona um campo de texto para o Discord ID na aba Misc
+    Tabs.Misc:AddTextbox({
+        Title = "Discord ID",
+        Placeholder = "Insira seu Discord ID",
+        Callback = function(value)
+            discordID = value
+            Fluent:Notify({
+                Title = "Discord ID",
+                Content = "Discord ID configurado com sucesso.",
+                Duration = 5
+            })
+        end
+    })
+
+    -- Função para enviar mensagem para o webhook do Discord
+    local function sendDiscordMessage(message)
+        if webhookURL == "" then
+            Fluent:Notify({
+                Title = "Erro",
+                Content = "Por favor, insira um webhook válido.",
+                Duration = 5
+            })
+            return
+        end
+
+        local httpService = game:GetService("HttpService")
+        
+        -- Verifica se o ID do Discord foi fornecido e monta a mensagem com a menção
+        local mention = ""
+        if discordID ~= "" then
+            mention = "<@" .. discordID .. "> "  -- Menciona o usuário no Discord
+        end
+
+        local data = {
+            content = mention .. message  -- Mensagem a ser enviada para o Discord, incluindo a menção
+        }
+        local jsonData = httpService:JSONEncode(data)
+
+        -- Envia a solicitação HTTP POST ao webhook do Discord
+        local success, response = pcall(function()
+            return httpService:PostAsync(webhookURL, jsonData, Enum.HttpContentType.ApplicationJson)
+        end)
+
+        if success then
+            Fluent:Notify({
+                Title = "Sucesso",
+                Content = "Mensagem enviada para o Discord.",
+                Duration = 5
+            })
+        else
+            Fluent:Notify({
+                Title = "Erro",
+                Content = "Falha ao enviar a mensagem para o Discord.",
+                Duration = 5
+            })
+        end
+    end
+
+    -- Adicionar um botão na aba Misc para enviar uma mensagem de teste ao webhook
+    Tabs.Misc:AddButton({
+        Title = "Enviar Mensagem de Teste",
+        Callback = function()
+            sendDiscordMessage("Esta é uma mensagem de teste enviada pelo script!")
+        end
+    })
+else
+    warn("A aba Misc não foi criada corretamente.")
+end
+
+Window:SelectTab(2)
+
+Fluent:Notify({
+    Title = "Fluent",
+    Content = "The script has been loaded.",
+    Duration = 8
+})
+
+-- Carrega a configuração de autoload, se disponível
+SaveManager:LoadAutoloadConfig()
