@@ -15,98 +15,105 @@ local Window = Fluent:CreateWindow({
 -- Criação das abas principais
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    MacroSettings = Window:AddTab({ Title = "Macro Settings", Icon = "settings" }), -- Aba "Macro Settings" sem conteúdo
-    Misc = Window:AddTab({ Title = "Misc", Icon = "tools" }) -- Nova aba "Misc"
+    MacroSettings = Window:AddTab({ Title = "Macro Settings", Icon = "settings" }),
+    Misc = Window:AddTab({ Title = "Misc", Icon = "tools" })
 }
 
--- Certifique-se de que a aba "Misc" foi criada corretamente
-if Tabs.Misc then
-    -- Variável para armazenar o webhook e o ID do Discord
-    local webhookURL = ""
-    local discordID = ""
+-- Variável para armazenar o webhook e o ID do Discord
+local webhookURL = ""
+local discordID = ""
 
-    -- Adiciona um campo de texto para o webhook na aba Misc
-    Tabs.Misc:AddTextbox({
-        Title = "Webhook URL",
-        Placeholder = "Insira o Webhook do Discord",
-        Callback = function(value)
-            webhookURL = value
-            Fluent:Notify({
-                Title = "Webhook",
-                Content = "Webhook URL configurado com sucesso.",
-                Duration = 5
-            })
-        end
-    })
+-- Adiciona um campo de texto para o webhook na aba Misc
+Tabs.Misc:AddTextbox({
+    Title = "Webhook URL",
+    Placeholder = "Insira o Webhook do Discord",
+    Text = "",
+    Callback = function(value)
+        webhookURL = value
+        Fluent:Notify({
+            Title = "Webhook",
+            Content = "Webhook URL configurado com sucesso.",
+            Duration = 5
+        })
+    end
+})
 
-    -- Adiciona um campo de texto para o Discord ID na aba Misc
-    Tabs.Misc:AddTextbox({
-        Title = "Discord ID",
-        Placeholder = "Insira seu Discord ID",
-        Callback = function(value)
-            discordID = value
-            Fluent:Notify({
-                Title = "Discord ID",
-                Content = "Discord ID configurado com sucesso.",
-                Duration = 5
-            })
-        end
-    })
+-- Adiciona um campo de texto para o Discord ID na aba Misc
+Tabs.Misc:AddTextbox({
+    Title = "Discord ID",
+    Placeholder = "Insira seu Discord ID",
+    Text = "",
+    Callback = function(value)
+        discordID = value
+        Fluent:Notify({
+            Title = "Discord ID",
+            Content = "Discord ID configurado com sucesso.",
+            Duration = 5
+        })
+    end
+})
 
-    -- Função para enviar mensagem para o webhook do Discord
-    local function sendDiscordMessage(message)
-        if webhookURL == "" then
-            Fluent:Notify({
-                Title = "Erro",
-                Content = "Por favor, insira um webhook válido.",
-                Duration = 5
-            })
-            return
-        end
-
-        local httpService = game:GetService("HttpService")
-        
-        -- Verifica se o ID do Discord foi fornecido e monta a mensagem com a menção
-        local mention = ""
-        if discordID ~= "" then
-            mention = "<@" .. discordID .. "> "  -- Menciona o usuário no Discord
-        end
-
-        local data = {
-            content = mention .. message  -- Mensagem a ser enviada para o Discord, incluindo a menção
-        }
-        local jsonData = httpService:JSONEncode(data)
-
-        -- Envia a solicitação HTTP POST ao webhook do Discord
-        local success, response = pcall(function()
-            return httpService:PostAsync(webhookURL, jsonData, Enum.HttpContentType.ApplicationJson)
-        end)
-
-        if success then
-            Fluent:Notify({
-                Title = "Sucesso",
-                Content = "Mensagem enviada para o Discord.",
-                Duration = 5
-            })
-        else
-            Fluent:Notify({
-                Title = "Erro",
-                Content = "Falha ao enviar a mensagem para o Discord.",
-                Duration = 5
-            })
-        end
+-- Função para enviar uma mensagem personalizada para o webhook do Discord
+local function sendDiscordMessage(player, status, rewards)
+    if webhookURL == "" then
+        Fluent:Notify({
+            Title = "Erro",
+            Content = "Por favor, insira um webhook válido.",
+            Duration = 5
+        })
+        return
     end
 
-    -- Adicionar um botão na aba Misc para enviar uma mensagem de teste ao webhook
-    Tabs.Misc:AddButton({
-        Title = "Enviar Mensagem de Teste",
-        Callback = function()
-            sendDiscordMessage("Esta é uma mensagem de teste enviada pelo script!")
-        end
-    })
-else
-    warn("A aba Misc não foi criada corretamente.")
+    local httpService = game:GetService("HttpService")
+    
+    -- Verifica se o ID do Discord foi fornecido e monta a mensagem com a menção
+    local mention = ""
+    if discordID ~= "" then
+        mention = "<@" .. discordID .. "> "  -- Menciona o usuário no Discord
+    end
+
+    -- Monta a mensagem personalizada
+    local message = "**Jogador:** " .. player.Name .. "\n" ..
+                    "**Status:** " .. status .. "\n" ..
+                    "**Recompensas Ganhas:** " .. rewards .. "\n"
+
+    local data = {
+        content = mention .. message  -- Mensagem a ser enviada para o Discord, incluindo a menção
+    }
+    local jsonData = httpService:JSONEncode(data)
+
+    -- Envia a solicitação HTTP POST ao webhook do Discord
+    local success, response = pcall(function()
+        return httpService:PostAsync(webhookURL, jsonData, Enum.HttpContentType.ApplicationJson)
+    end)
+
+    if success then
+        Fluent:Notify({
+            Title = "Sucesso",
+            Content = "Mensagem personalizada enviada para o Discord.",
+            Duration = 5
+        })
+    else
+        Fluent:Notify({
+            Title = "Erro",
+            Content = "Falha ao enviar a mensagem para o Discord.",
+            Duration = 5
+        })
+    end
 end
+
+-- Adicionar um botão na aba Misc para enviar uma mensagem de teste personalizada ao webhook
+Tabs.Misc:AddButton({
+    Title = "Enviar Mensagem de Teste",
+    Callback = function()
+        -- Simulando dados do jogador e recompensas
+        local player = game.Players.LocalPlayer  -- Pegando o jogador local
+        local status = "100 kills"  -- Exemplo de status do jogador
+        local rewards = "Espada de Ouro, Escudo de Diamante"  -- Exemplo de recompensas
+
+        sendDiscordMessage(player, status, rewards)
+    end
+})
 
 Window:SelectTab(2)
 
