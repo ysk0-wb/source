@@ -3,8 +3,8 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 
 -- Cria a janela principal do Fluent
 local Window = Fluent:CreateWindow({
-    Title = "Ark Hub " .. Fluent.Version,
-    SubTitle = "by .ysk0",
+    Title = "Fluent " .. Fluent.Version,
+    SubTitle = "by dawid",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
@@ -23,8 +23,18 @@ SaveManager:SetLibrary(Fluent)
 SaveManager:IgnoreThemeSettings()
 SaveManager:SetFolder("FluentScriptHub/specific-game")
 
--- Remove a seção de Interface e mantém apenas a de configuração
+-- Modifica a seção de configurações para usar "file" em vez de "config name"
 SaveManager:BuildConfigSection(Tabs.Settings)
+
+-- Modificar o nome da opção na aba Settings para "file"
+Tabs.Settings:AddTextbox({
+    Title = "File",
+    Default = "",
+    Placeholder = "Enter file name",
+    Callback = function(value)
+        SaveManager:SetFileName(value)  -- Supondo que haja um método para definir o nome do arquivo
+    end
+})
 
 Window:SelectTab(2)
 
