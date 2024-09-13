@@ -3,127 +3,30 @@ local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/shle
 
 -- Cria a janela principal
 local Window = OrionLib:MakeWindow({
-    Name = "Title of the library",
+    Name = "Ark Hub",  -- Título da biblioteca
     HidePremium = false,
     SaveConfig = true,
     ConfigFolder = "OrionTest"
 })
 
--- Cria a aba "Macro Settings"
+-- Cria a aba "Macro Settings" e limpa seu conteúdo
 local MacroSettingsTab = Window:MakeTab({
     Name = "Macro Settings",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
--- Cria uma seção na aba "Macro Settings"
-local MacroSettingsSection = MacroSettingsTab:AddSection({
-    Name = "Main Section"
-})
-
--- Adiciona uma notificação
-OrionLib:MakeNotification({
-    Name = "Welcome!",
-    Content = "Your UI has been loaded successfully.",
-    Image = "rbxassetid://4483345998",
-    Time = 5
-})
-
--- Adiciona um botão
-MacroSettingsTab:AddButton({
-    Name = "Test Button",
-    Callback = function()
-        print("Button pressed")
-    end
-})
-
--- Adiciona uma caixa de seleção
-MacroSettingsTab:AddToggle({
-    Name = "Test Toggle",
-    Default = false,
-    Callback = function(Value)
-        print("Toggle value: " .. tostring(Value))
-    end
-})
-
--- Adiciona um seletor de cor
-local ColorPicker = MacroSettingsTab:AddColorpicker({
-    Name = "Test Colorpicker",
-    Default = Color3.fromRGB(255, 0, 0),
-    Callback = function(Value)
-        print("Color picked: " .. tostring(Value))
-    end
-})
-
--- Altera o valor do seletor de cor
-ColorPicker:Set(Color3.fromRGB(255, 255, 255))
-
--- Adiciona um slider
-local Slider = MacroSettingsTab:AddSlider({
-    Name = "Test Slider",
-    Min = 0,
-    Max = 20,
-    Default = 5,
-    Color = Color3.fromRGB(255, 255, 255),
-    Increment = 1,
-    ValueName = "Value",
-    Callback = function(Value)
-        print("Slider value: " .. tostring(Value))
-    end
-})
-
--- Altera o valor do slider
-Slider:Set(10)
-
--- Adiciona um label
-local Label = MacroSettingsTab:AddLabel("Test Label")
-
--- Altera o valor do label
-Label:Set("New Label")
-
--- Adiciona um parágrafo
-local Paragraph = MacroSettingsTab:AddParagraph("Test Paragraph", "This is the content of the paragraph.")
-
--- Altera o valor do parágrafo
-Paragraph:Set("New Paragraph", "This is the updated content of the paragraph.")
-
--- Adiciona um campo de texto
-local Textbox = MacroSettingsTab:AddTextbox({
-    Name = "Test Textbox",
-    Default = "Default text",
+-- Adiciona uma caixa de texto na aba "Macro Settings"
+MacroSettingsTab:AddTextbox({
+    Name = "File",
+    Default = "Enter file name",
     TextDisappear = true,
     Callback = function(Value)
-        print("Textbox value: " .. tostring(Value))
+        print("File name entered: " .. tostring(Value))
     end
 })
 
--- Adiciona um keybind
-local Keybind = MacroSettingsTab:AddBind({
-    Name = "Test Keybind",
-    Default = Enum.KeyCode.E,
-    Hold = false,
-    Callback = function()
-        print("Keybind pressed")
-    end
-})
-
--- Altera o valor do keybind
-Keybind:Set(Enum.KeyCode.F)
-
--- Adiciona um dropdown
-local Dropdown = MacroSettingsTab:AddDropdown({
-    Name = "Test Dropdown",
-    Default = "Option 1",
-    Options = {"Option 1", "Option 2"},
-    Callback = function(Value)
-        print("Dropdown value: " .. tostring(Value))
-    end
-})
-
--- Altera o valor do dropdown
-Dropdown:Set("Option 2")
-
--- Adiciona uma nova aba "Misc" e campos de texto nela
+-- Cria uma nova aba "Misc" e adiciona os campos necessários
 local MiscTab = Window:MakeTab({
     Name = "Misc",
     Icon = "rbxassetid://4483345998",
@@ -180,11 +83,21 @@ MiscTab:AddButton({
             return
         end
 
+        if discordID == "" then
+            OrionLib:MakeNotification({
+                Name = "Error",
+                Content = "Please set a valid Discord ID.",
+                Image = "rbxassetid://4483345998",
+                Time = 5
+            })
+            return
+        end
+
         local httpService = game:GetService("HttpService")
         local playerName = game.Players.LocalPlayer.Name
         local status = "Test Status"
         local rewards = "Test Rewards"
-        local mention = discordID ~= "" and "<@" .. discordID .. "> " or ""
+        local mention = "<@" .. discordID .. "> " -- Formata a menção do Discord
         local message = "**Player:** " .. playerName .. "\n" ..
                         "**Status:** " .. status .. "\n" ..
                         "**Rewards:** " .. rewards .. "\n"
@@ -206,7 +119,7 @@ MiscTab:AddButton({
         else
             OrionLib:MakeNotification({
                 Name = "Error",
-                Content = "Failed to send message to Discord.",
+                Content = "Failed to send message to Discord: " .. tostring(response),
                 Image = "rbxassetid://4483345998",
                 Time = 5
             })
