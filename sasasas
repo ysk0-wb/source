@@ -1,0 +1,127 @@
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+
+-- Cria a janela principal do Fluent
+local Window = Fluent:CreateWindow({
+    Title = "Fluent " .. Fluent.Version,
+    SubTitle = "by dawid",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+-- Criação das abas principais
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    MacroSettings = Window:AddTab({ Title = "Macro Settings", Icon = "settings" }), -- Aba "Macro Settings"
+    Misc = Window:AddTab({ Title = "Misc", Icon = "tools" }) -- Nova aba "Misc"
+}
+
+-- Limpa a aba Macro Settings e adiciona uma caixa de texto chamada "File"
+Tabs.MacroSettings:Clear() -- Limpa o conteúdo existente na aba Macro Settings
+Tabs.MacroSettings:AddTextbox({
+    Title = "File",
+    Placeholder = "Digite o nome do arquivo",
+    Text = "",
+    Callback = function(value)
+        print("Nome do arquivo: " .. value) -- Exemplo de uso do valor inserido
+    end
+})
+
+-- Adiciona campos de texto e botão na aba Misc
+if Tabs.Misc then
+    -- Variáveis para armazenar dados
+    local webhookURL = ""
+    local discordID = ""
+
+    -- Adiciona campo de texto para o webhook
+    Tabs.Misc:AddTextbox({
+        Title = "Webhook URL",
+        Placeholder = "Insira o Webhook do Discord",
+        Text = "",
+        Callback = function(value)
+            webhookURL = value
+            Fluent:Notify({
+                Title = "Webhook",
+                Content = "Webhook URL configurado com sucesso.",
+                Duration = 5
+            })
+        end
+    })
+
+    -- Adiciona campo de texto para o Discord ID
+    Tabs.Misc:AddTextbox({
+        Title = "Discord ID",
+        Placeholder = "Insira seu Discord ID",
+        Text = "",
+        Callback = function(value)
+            discordID = value
+            Fluent:Notify({
+                Title = "Discord ID",
+                Content = "Discord ID configurado com sucesso.",
+                Duration = 5
+            })
+        end
+    })
+
+    -- Adiciona botão para enviar mensagem de teste
+    Tabs.Misc:AddButton({
+        Title = "Enviar Mensagem de Teste",
+        Callback = function()
+            if webhookURL == "" then
+                Fluent:Notify({
+                    Title = "Erro",
+                    Content = "Por favor, insira um webhook válido.",
+                    Duration = 5
+                })
+                return
+            end
+
+            local httpService = game:GetService("HttpService")
+            local playerName = game.Players.LocalPlayer.Name  -- Pegando o nome do jogador local
+            local status = "100 kills"  -- Exemplo de status do jogador
+            local rewards = "Espada de Ouro, Escudo de Diamante"  -- Exemplo de recompensas
+            local message = "**Jogador:** " .. playerName .. "\n" ..
+                            "**Status:** " .. status .. "\n" ..
+                            "**Recompensas Ganhas:** " .. rewards .. "\n"
+
+            local data = {
+                content = message
+            }
+            local jsonData = httpService:JSONEncode(data)
+
+            local success, response = pcall(function()
+                return httpService:PostAsync(webhookURL, jsonData, Enum.HttpContentType.ApplicationJson)
+            end)
+
+            if success then
+                Fluent:Notify({
+                    Title = "Sucesso",
+                    Content = "Mensagem personalizada enviada para o Discord.",
+                    Duration = 5
+                })
+            else
+                Fluent:Notify({
+                    Title = "Erro",
+                    Content = "Falha ao enviar a mensagem para o Discord.",
+                    Duration = 5
+                })
+            end
+        end
+    })
+else
+    warn("A aba Misc não foi criada corretamente.")
+end
+
+Window:SelectTab(2)
+
+Fluent:Notify({
+    Title = "Fluent",
+    Content = "The script has been loaded.",
+    Duration = 8
+})
+
+-- Carrega a configuração de autoload, se disponível
+SaveManager:LoadAutoloadConfig()
