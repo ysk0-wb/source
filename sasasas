@@ -1,127 +1,221 @@
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+-- Carrega a biblioteca OrionLib
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
 
--- Cria a janela principal do Fluent
-local Window = Fluent:CreateWindow({
-    Title = "Fluent " .. Fluent.Version,
-    SubTitle = "by dawid",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true,
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
+-- Cria a janela principal
+local Window = OrionLib:MakeWindow({
+    Name = "Title of the library",
+    HidePremium = false,
+    SaveConfig = true,
+    ConfigFolder = "OrionTest"
 })
 
--- Criação das abas principais
-local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    MacroSettings = Window:AddTab({ Title = "Macro Settings", Icon = "settings" }), -- Aba "Macro Settings"
-    Misc = Window:AddTab({ Title = "Misc", Icon = "tools" }) -- Nova aba "Misc"
-}
+-- Cria a aba "Macro Settings"
+local MacroSettingsTab = Window:MakeTab({
+    Name = "Macro Settings",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
 
--- Limpa a aba Macro Settings e adiciona uma caixa de texto chamada "File"
-Tabs.MacroSettings:Clear() -- Limpa o conteúdo existente na aba Macro Settings
-Tabs.MacroSettings:AddTextbox({
-    Title = "File",
-    Placeholder = "Digite o nome do arquivo",
-    Text = "",
-    Callback = function(value)
-        print("Nome do arquivo: " .. value) -- Exemplo de uso do valor inserido
+-- Cria uma seção na aba "Macro Settings"
+local MacroSettingsSection = MacroSettingsTab:AddSection({
+    Name = "Main Section"
+})
+
+-- Adiciona uma notificação
+OrionLib:MakeNotification({
+    Name = "Welcome!",
+    Content = "Your UI has been loaded successfully.",
+    Image = "rbxassetid://4483345998",
+    Time = 5
+})
+
+-- Adiciona um botão
+MacroSettingsTab:AddButton({
+    Name = "Test Button",
+    Callback = function()
+        print("Button pressed")
     end
 })
 
--- Adiciona campos de texto e botão na aba Misc
-if Tabs.Misc then
-    -- Variáveis para armazenar dados
-    local webhookURL = ""
-    local discordID = ""
-
-    -- Adiciona campo de texto para o webhook
-    Tabs.Misc:AddTextbox({
-        Title = "Webhook URL",
-        Placeholder = "Insira o Webhook do Discord",
-        Text = "",
-        Callback = function(value)
-            webhookURL = value
-            Fluent:Notify({
-                Title = "Webhook",
-                Content = "Webhook URL configurado com sucesso.",
-                Duration = 5
-            })
-        end
-    })
-
-    -- Adiciona campo de texto para o Discord ID
-    Tabs.Misc:AddTextbox({
-        Title = "Discord ID",
-        Placeholder = "Insira seu Discord ID",
-        Text = "",
-        Callback = function(value)
-            discordID = value
-            Fluent:Notify({
-                Title = "Discord ID",
-                Content = "Discord ID configurado com sucesso.",
-                Duration = 5
-            })
-        end
-    })
-
-    -- Adiciona botão para enviar mensagem de teste
-    Tabs.Misc:AddButton({
-        Title = "Enviar Mensagem de Teste",
-        Callback = function()
-            if webhookURL == "" then
-                Fluent:Notify({
-                    Title = "Erro",
-                    Content = "Por favor, insira um webhook válido.",
-                    Duration = 5
-                })
-                return
-            end
-
-            local httpService = game:GetService("HttpService")
-            local playerName = game.Players.LocalPlayer.Name  -- Pegando o nome do jogador local
-            local status = "100 kills"  -- Exemplo de status do jogador
-            local rewards = "Espada de Ouro, Escudo de Diamante"  -- Exemplo de recompensas
-            local message = "**Jogador:** " .. playerName .. "\n" ..
-                            "**Status:** " .. status .. "\n" ..
-                            "**Recompensas Ganhas:** " .. rewards .. "\n"
-
-            local data = {
-                content = message
-            }
-            local jsonData = httpService:JSONEncode(data)
-
-            local success, response = pcall(function()
-                return httpService:PostAsync(webhookURL, jsonData, Enum.HttpContentType.ApplicationJson)
-            end)
-
-            if success then
-                Fluent:Notify({
-                    Title = "Sucesso",
-                    Content = "Mensagem personalizada enviada para o Discord.",
-                    Duration = 5
-                })
-            else
-                Fluent:Notify({
-                    Title = "Erro",
-                    Content = "Falha ao enviar a mensagem para o Discord.",
-                    Duration = 5
-                })
-            end
-        end
-    })
-else
-    warn("A aba Misc não foi criada corretamente.")
-end
-
-Window:SelectTab(2)
-
-Fluent:Notify({
-    Title = "Fluent",
-    Content = "The script has been loaded.",
-    Duration = 8
+-- Adiciona uma caixa de seleção
+MacroSettingsTab:AddToggle({
+    Name = "Test Toggle",
+    Default = false,
+    Callback = function(Value)
+        print("Toggle value: " .. tostring(Value))
+    end
 })
 
--- Carrega a configuração de autoload, se disponível
-SaveManager:LoadAutoloadConfig()
+-- Adiciona um seletor de cor
+local ColorPicker = MacroSettingsTab:AddColorpicker({
+    Name = "Test Colorpicker",
+    Default = Color3.fromRGB(255, 0, 0),
+    Callback = function(Value)
+        print("Color picked: " .. tostring(Value))
+    end
+})
+
+-- Altera o valor do seletor de cor
+ColorPicker:Set(Color3.fromRGB(255, 255, 255))
+
+-- Adiciona um slider
+local Slider = MacroSettingsTab:AddSlider({
+    Name = "Test Slider",
+    Min = 0,
+    Max = 20,
+    Default = 5,
+    Color = Color3.fromRGB(255, 255, 255),
+    Increment = 1,
+    ValueName = "Value",
+    Callback = function(Value)
+        print("Slider value: " .. tostring(Value))
+    end
+})
+
+-- Altera o valor do slider
+Slider:Set(10)
+
+-- Adiciona um label
+local Label = MacroSettingsTab:AddLabel("Test Label")
+
+-- Altera o valor do label
+Label:Set("New Label")
+
+-- Adiciona um parágrafo
+local Paragraph = MacroSettingsTab:AddParagraph("Test Paragraph", "This is the content of the paragraph.")
+
+-- Altera o valor do parágrafo
+Paragraph:Set("New Paragraph", "This is the updated content of the paragraph.")
+
+-- Adiciona um campo de texto
+local Textbox = MacroSettingsTab:AddTextbox({
+    Name = "Test Textbox",
+    Default = "Default text",
+    TextDisappear = true,
+    Callback = function(Value)
+        print("Textbox value: " .. tostring(Value))
+    end
+})
+
+-- Adiciona um keybind
+local Keybind = MacroSettingsTab:AddBind({
+    Name = "Test Keybind",
+    Default = Enum.KeyCode.E,
+    Hold = false,
+    Callback = function()
+        print("Keybind pressed")
+    end
+})
+
+-- Altera o valor do keybind
+Keybind:Set(Enum.KeyCode.F)
+
+-- Adiciona um dropdown
+local Dropdown = MacroSettingsTab:AddDropdown({
+    Name = "Test Dropdown",
+    Default = "Option 1",
+    Options = {"Option 1", "Option 2"},
+    Callback = function(Value)
+        print("Dropdown value: " .. tostring(Value))
+    end
+})
+
+-- Altera o valor do dropdown
+Dropdown:Set("Option 2")
+
+-- Adiciona uma nova aba "Misc" e campos de texto nela
+local MiscTab = Window:MakeTab({
+    Name = "Misc",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- Variáveis para armazenar dados
+local webhookURL = ""
+local discordID = ""
+
+-- Adiciona campo de texto para o webhook
+MiscTab:AddTextbox({
+    Name = "Webhook URL",
+    Default = "",
+    TextDisappear = true,
+    Callback = function(Value)
+        webhookURL = Value
+        OrionLib:MakeNotification({
+            Name = "Webhook URL Set",
+            Content = "Webhook URL has been set.",
+            Image = "rbxassetid://4483345998",
+            Time = 5
+        })
+    end
+})
+
+-- Adiciona campo de texto para o Discord ID
+MiscTab:AddTextbox({
+    Name = "Discord ID",
+    Default = "",
+    TextDisappear = true,
+    Callback = function(Value)
+        discordID = Value
+        OrionLib:MakeNotification({
+            Name = "Discord ID Set",
+            Content = "Discord ID has been set.",
+            Image = "rbxassetid://4483345998",
+            Time = 5
+        })
+    end
+})
+
+-- Adiciona botão para enviar uma mensagem de teste ao webhook
+MiscTab:AddButton({
+    Name = "Send Test Message",
+    Callback = function()
+        if webhookURL == "" then
+            OrionLib:MakeNotification({
+                Name = "Error",
+                Content = "Please set a valid webhook URL.",
+                Image = "rbxassetid://4483345998",
+                Time = 5
+            })
+            return
+        end
+
+        local httpService = game:GetService("HttpService")
+        local playerName = game.Players.LocalPlayer.Name
+        local status = "Test Status"
+        local rewards = "Test Rewards"
+        local mention = discordID ~= "" and "<@" .. discordID .. "> " or ""
+        local message = "**Player:** " .. playerName .. "\n" ..
+                        "**Status:** " .. status .. "\n" ..
+                        "**Rewards:** " .. rewards .. "\n"
+
+        local data = { content = mention .. message }
+        local jsonData = httpService:JSONEncode(data)
+
+        local success, response = pcall(function()
+            return httpService:PostAsync(webhookURL, jsonData, Enum.HttpContentType.ApplicationJson)
+        end)
+
+        if success then
+            OrionLib:MakeNotification({
+                Name = "Success",
+                Content = "Test message sent to Discord.",
+                Image = "rbxassetid://4483345998",
+                Time = 5
+            })
+        else
+            OrionLib:MakeNotification({
+                Name = "Error",
+                Content = "Failed to send message to Discord.",
+                Image = "rbxassetid://4483345998",
+                Time = 5
+            })
+        end
+    end
+})
+
+-- Inicializa a interface
+OrionLib:Init()
+
+-- Função para destruir a interface (se necessário)
+-- OrionLib:Destroy()
